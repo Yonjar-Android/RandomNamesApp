@@ -40,8 +40,12 @@ import com.example.randomnamesapp.Categories.Italian
 import com.example.randomnamesapp.Categories.Spanish
 import com.example.randomnamesapp.Gender
 import com.example.randomnamesapp.ui.theme.RandomNamesAppTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -90,7 +94,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GenderSelection() {
-    val genderList = listOf(Gender.Male, Gender.Female, Gender.Unisex)
+    val genderList = listOf(Gender.Male, Gender.Female, Gender.Unisex, Gender.All)
     var selectedGender by remember { mutableStateOf(Gender.Male) }
 
     Text("Gender", fontSize = 20.sp, fontWeight = SemiBold)
