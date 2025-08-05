@@ -7,31 +7,38 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.randomnamesapp.Categories.Arabic
 import com.example.randomnamesapp.Categories.English
 import com.example.randomnamesapp.Categories.French
@@ -51,7 +58,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RandomNamesAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                val randomName by viewModel.name.collectAsStateWithLifecycle()
+
+                Scaffold(modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(
+                                onClick = { viewModel.getRandomName() },
+                                modifier = Modifier.padding(8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0XFF0d80f2)
+                                )
+                                ) {
+                                Text(
+                                    "Get Random Name", fontSize = 24.sp,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                        }
+
+                    }) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -59,24 +90,15 @@ class MainActivity : ComponentActivity() {
                             .verticalScroll(rememberScrollState())
                     ,
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
 
                     ) {
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("Random Name", fontSize = 24.sp, fontWeight = SemiBold)
+                        Text("Name Generator", fontSize = 28.sp, fontWeight = SemiBold)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Button(
-                            onClick = { },
-
-                            ) {
-                            Text(
-                                "Generate", fontSize = 24.sp,
-                                modifier = Modifier.padding(8.dp)
-                            )
-                        }
+                        Text(randomName, fontSize = 24.sp, fontWeight = SemiBold)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -132,9 +154,18 @@ fun CategorySelection() {
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    FlowRow {
+    FlowRow(
+        maxItemsInEachRow = 2,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         categoryList.forEach {
-            CheckboxDefault(text = it.name)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f) // Cada checkbox ocupará la mitad del ancho
+                    .padding(vertical = 4.dp) // Espacio entre filas
+            ) {
+                CheckboxDefault(text = it.name)
+            }
         }
     }
 }
@@ -144,14 +175,22 @@ fun CheckboxDefault(
     text: String
 ) {
     val checkedState = remember { mutableStateOf(true) }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Checkbox(
             checked = checkedState.value,
             onCheckedChange = { checkedState.value = it }
         )
-        Text(text = text, fontSize = 18.sp)
+        Text(
+            text = text,
+            fontSize = 18.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
+
 

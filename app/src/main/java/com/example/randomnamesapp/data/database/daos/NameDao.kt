@@ -1,6 +1,7 @@
 package com.example.randomnamesapp.data.database.daos
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import com.example.randomnamesapp.data.database.entities.NameEntity
 
@@ -12,5 +13,10 @@ interface NameDao {
     """)
     suspend fun getRandomName(): NameEntity
 
+    @Insert
     suspend fun insertName(name: NameEntity)
+
+    @Insert
+    suspend fun insertAllNames(names: List<NameEntity>)
+
 }

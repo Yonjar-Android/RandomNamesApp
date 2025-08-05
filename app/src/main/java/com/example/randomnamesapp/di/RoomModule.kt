@@ -16,4 +16,9 @@ val roomModule = module {
 
     single { get<AppDatabase>().nameDao() } // Get Name DAO
 
+    single { get<AppDatabase>().genderDao() } // Get Gender DAO
+
+    single { get<AppDatabase>().originDao() } // Get Origin DAO
+
+
 }
