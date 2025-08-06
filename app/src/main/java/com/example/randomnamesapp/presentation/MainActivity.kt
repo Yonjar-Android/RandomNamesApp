@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -26,7 +29,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,13 +41,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.randomnamesapp.Categories.Arabic
-import com.example.randomnamesapp.Categories.English
-import com.example.randomnamesapp.Categories.French
-import com.example.randomnamesapp.Categories.German
-import com.example.randomnamesapp.Categories.Italian
-import com.example.randomnamesapp.Categories.Spanish
-import com.example.randomnamesapp.Gender
+import com.example.randomnamesapp.data.database.entities.GenderEntity
+import com.example.randomnamesapp.data.database.entities.OriginEntity
 import com.example.randomnamesapp.ui.theme.RandomNamesAppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -61,37 +58,45 @@ class MainActivity : ComponentActivity() {
 
                 val randomName by viewModel.name.collectAsStateWithLifecycle()
 
-                Scaffold(modifier = Modifier.fillMaxSize(),
+                val genders by viewModel.genders.collectAsStateWithLifecycle()
+                val origins by viewModel.origins.collectAsStateWithLifecycle()
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         Row(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .windowInsetsPadding(
+                                    WindowInsets.systemBars
+                                )
+                        )
+                        {
                             Button(
                                 onClick = { viewModel.getRandomName() },
                                 modifier = Modifier.padding(8.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0XFF0d80f2)
                                 )
-                                ) {
+                            ) {
                                 Text(
                                     "Get Random Name", fontSize = 24.sp,
                                     modifier = Modifier.padding(8.dp)
                                 )
                             }
                         }
-
-                    }) { innerPadding ->
+                    }
+                ) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .verticalScroll(rememberScrollState())
-                    ,
+                            .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
 
-                    ) {
+                        ) {
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text("Name Generator", fontSize = 28.sp, fontWeight = SemiBold)
@@ -102,11 +107,12 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        GenderSelection()
+                        if (genders.isNotEmpty()) GenderSelection(genders) // Radio Buttons for gender selection
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        CategorySelection()
+                        if (origins.isNotEmpty()) CategorySelection(origins) // Checkbox for category selection
+
                     }
                 }
             }
@@ -115,31 +121,36 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun GenderSelection() {
-    val genderList = listOf(Gender.Male, Gender.Female, Gender.Unisex, Gender.All)
-    var selectedGender by remember { mutableStateOf(Gender.Male) }
+fun GenderSelection(
+    genders: List<GenderEntity>,
+) {
+    var selectedGender by remember { mutableStateOf(genders[0].id) }
 
     Text("Gender", fontSize = 20.sp, fontWeight = SemiBold)
 
-    Row {
-        genderList.forEach { gender ->
+    FlowRow(
+        maxItemsInEachRow = 2,
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        genders.forEach { gender ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.padding(4.dp)
             ) {
                 RadioButton(
-                    selected = selectedGender == gender,
-                    onClick = { selectedGender = gender }
+                    selected = selectedGender == gender.id,
+                    onClick = { selectedGender = gender.id }
                 )
 
                 Text(
-                    text = gender.name, fontSize = 18.sp,
+                    text = gender.label, fontSize = 18.sp,
                     modifier = Modifier.clickable(
                         indication = null,              // ⛔ No ripple effect
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
-                        selectedGender = gender
+                        selectedGender = gender.id
                     })
             }
         }
@@ -148,8 +159,9 @@ fun GenderSelection() {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CategorySelection() {
-    val categoryList = listOf(German, Spanish, English, French, Arabic, Italian)
+fun CategorySelection(
+    origins: List<OriginEntity>
+) {
     Text("Categories", fontSize = 20.sp, fontWeight = SemiBold)
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -158,7 +170,7 @@ fun CategorySelection() {
         maxItemsInEachRow = 2,
         modifier = Modifier.fillMaxWidth()
     ) {
-        categoryList.forEach {
+        origins.forEach {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.5f) // Cada checkbox ocupará la mitad del ancho

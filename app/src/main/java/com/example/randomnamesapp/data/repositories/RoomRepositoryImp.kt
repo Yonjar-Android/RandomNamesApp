@@ -5,34 +5,17 @@ import com.example.randomnamesapp.data.database.daos.GenderDao
 import com.example.randomnamesapp.data.database.daos.NameDao
 import com.example.randomnamesapp.data.database.daos.OriginDao
 import com.example.randomnamesapp.data.database.entities.GenderEntity
-import com.example.randomnamesapp.data.database.entities.NameEntity
 import com.example.randomnamesapp.data.database.entities.OriginEntity
-import com.example.randomnamesapp.utils.CsvReader
 
 class RoomRepositoryImp(
     private val nameDao: NameDao,
     private val genderDao: GenderDao,
-    private val originDao: OriginDao,
-    private val context: Context
-): RoomRepository {
-    override suspend fun insertName(name: NameEntity) {
-        nameDao.insertName(name)
-    }
-
-    override suspend fun preloadNames(names: List<NameEntity>) {
-        val namess = CsvReader.readCsvFromAssets(context = context, "names.csv") { tokens ->
-            NameEntity(
-                name = tokens[1],
-                genderId = tokens[2].toInt(),
-                originId = tokens[3].toInt()
-            )
-        }
-        nameDao.insertAllNames(namess)
-    }
+    private val originDao: OriginDao): RoomRepository {
 
     override suspend fun getRandomName(): String {
         val response = nameDao.getRandomName()
-        return response.name
+        println(response)
+        return response[0].name
     }
 
     override suspend fun getRandomNameByCategories(
@@ -42,35 +25,14 @@ class RoomRepositoryImp(
         return ""
     }
 
-    override suspend fun preloadGenders() {
-        val genders = CsvReader.readCsvFromAssets(context = context, "genders.csv") { tokens ->
-            GenderEntity(
-                id = tokens[0].toInt(),
-                label = tokens[1]
-            )
-        }
-
-        genderDao.insertAllGenders(genders)
-    }
-
-    override suspend fun getGenders() {
+    override suspend fun getGenders(): List<GenderEntity> {
         val response = genderDao.getAllGenders()
-        println(response)
+        return response
     }
 
-    override suspend fun getOrigins() {
+    override suspend fun getOrigins(): List<OriginEntity> {
         val response = originDao.getAllOrigins()
-        println(response)
+        return response
     }
 
-    override suspend fun preloadOrigins() {
-        val origins = CsvReader.readCsvFromAssets(context = context, "origins.csv") { tokens ->
-            OriginEntity(
-                id = tokens[0].toInt(),
-                name = tokens[1]
-            )
-        }
-
-        originDao.insertAllOrigins(origins)
-    }
 }
