@@ -22,17 +22,11 @@ class RoomRepositoryImp(
             }
 
             val response = nameDao.getRandomName(genderIds, origins)
+            println(response)
             response.name
         } catch (e: Exception) {
             "Error: ${e.message}"
         }
-    }
-
-    override suspend fun getRandomNameByCategories(
-        gender: String,
-        categories: List<String>
-    ): String {
-        return ""
     }
 
     override suspend fun getGenders(): List<GenderEntity> {

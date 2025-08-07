@@ -7,9 +7,6 @@ interface RoomRepository {
 
     suspend fun getRandomName(gender: Int, origins: List<Int>): String
 
-    suspend fun getRandomNameByCategories(gender: String, categories: List<String>): String
-
-
     suspend fun getGenders(): List<GenderEntity>
 
     suspend fun getOrigins(): List<OriginEntity>
