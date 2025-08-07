@@ -22,6 +22,9 @@ class MainViewModel(
     private val _genders = MutableStateFlow<List<GenderEntity>>(emptyList())
     val genders = _genders.asStateFlow()
 
+    private val _message = MutableStateFlow<String>("")
+    val message = _message.asStateFlow()
+
     init {
         viewModelScope.launch {
             _genders.value = roomRepository.getGenders()
@@ -30,9 +33,18 @@ class MainViewModel(
     }
 
 
-    fun getRandomName(){
+    fun getRandomName(genderId: Int, origins: List<Int>){
         viewModelScope.launch {
-           _name.value = roomRepository.getRandomName()
+            val response = roomRepository.getRandomName(genderId, origins)
+            if (response.contains("Error")){
+                _message.value = "No found names"
+            } else{
+                _name.value = response
+            }
         }
+    }
+
+    fun clearMessage(){
+        _message.value = ""
     }
 }

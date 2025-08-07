@@ -1,6 +1,5 @@
 package com.example.randomnamesapp.data.repositories
 
-import android.content.Context
 import com.example.randomnamesapp.data.database.daos.GenderDao
 import com.example.randomnamesapp.data.database.daos.NameDao
 import com.example.randomnamesapp.data.database.daos.OriginDao
@@ -12,10 +11,21 @@ class RoomRepositoryImp(
     private val genderDao: GenderDao,
     private val originDao: OriginDao): RoomRepository {
 
-    override suspend fun getRandomName(): String {
-        val response = nameDao.getRandomName()
-        println(response)
-        return response[0].name
+    override suspend fun getRandomName(gender: Int, origins: List<Int>): String {
+        return try {
+            val genderIds = when (gender) {
+                1 -> listOf(1, 3) // Masculine + Either
+                2 -> listOf(2, 3) // Feminine + Either
+                3 -> listOf(3)    // Only Either
+                4 -> listOf(1, 2, 3) // All
+                else -> emptyList()
+            }
+
+            val response = nameDao.getRandomName(genderIds, origins)
+            response.name
+        } catch (e: Exception) {
+            "Error: ${e.message}"
+        }
     }
 
     override suspend fun getRandomNameByCategories(

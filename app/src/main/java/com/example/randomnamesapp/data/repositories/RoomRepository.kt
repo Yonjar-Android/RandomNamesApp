@@ -5,7 +5,7 @@ import com.example.randomnamesapp.data.database.entities.OriginEntity
 
 interface RoomRepository {
 
-    suspend fun getRandomName(): String
+    suspend fun getRandomName(gender: Int, origins: List<Int>): String
 
     suspend fun getRandomNameByCategories(gender: String, categories: List<String>): String
 

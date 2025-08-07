@@ -1,6 +1,7 @@
 package com.example.randomnamesapp.presentation
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,7 +30,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,6 +64,25 @@ class MainActivity : ComponentActivity() {
                 val genders by viewModel.genders.collectAsStateWithLifecycle()
                 val origins by viewModel.origins.collectAsStateWithLifecycle()
 
+                val message by viewModel.message.collectAsStateWithLifecycle()
+
+                var selectedGender by remember { mutableIntStateOf(1) }
+
+                val originsSelected = remember { mutableListOf<Int>() }
+
+                if (origins.isNotEmpty()) {
+                    origins.forEach {
+                        originsSelected.add(it.id!!)
+                    }
+                }
+
+                LaunchedEffect(message) {
+                    if (message.isNotEmpty()) {
+                        Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                        viewModel.clearMessage()
+                    }
+                }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -75,7 +97,18 @@ class MainActivity : ComponentActivity() {
                         )
                         {
                             Button(
-                                onClick = { viewModel.getRandomName() },
+                                onClick = {
+                                    if (originsSelected.isEmpty()) {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Select at least one category",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@Button
+                                    }
+
+                                    viewModel.getRandomName(selectedGender, originsSelected)
+                                },
                                 modifier = Modifier.padding(8.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0XFF0d80f2)
@@ -97,7 +130,8 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
 
                         ) {
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         Text("Name Generator", fontSize = 28.sp, fontWeight = SemiBold)
 
@@ -107,101 +141,133 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        if (genders.isNotEmpty()) GenderSelection(genders) // Radio Buttons for gender selection
+                        if (genders.isNotEmpty()) GenderSelection(genders) {
+                            selectedGender = it
+                        } // Radio Buttons for gender selection
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        if (origins.isNotEmpty()) CategorySelection(origins) // Checkbox for category selection
-
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (origins.isNotEmpty()) {
+                                CategorySelection( // Checkbox for category selection
+                                    origins,
+                                    modifyOriginSelected = { id, isChecked ->
+                                        if (isChecked) originsSelected.add(id)
+                                        else originsSelected.remove(id)
+                                    })
+                            }
+                        }
                     }
                 }
             }
         }
     }
-}
 
-@Composable
-fun GenderSelection(
-    genders: List<GenderEntity>,
-) {
-    var selectedGender by remember { mutableStateOf(genders[0].id) }
-
-    Text("Gender", fontSize = 20.sp, fontWeight = SemiBold)
-
-    FlowRow(
-        maxItemsInEachRow = 2,
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+    @Composable
+    fun GenderSelection(
+        genders: List<GenderEntity>,
+        onGenderSelected: (Int) -> Unit
     ) {
-        genders.forEach { gender ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.padding(4.dp)
-            ) {
-                RadioButton(
-                    selected = selectedGender == gender.id,
-                    onClick = { selectedGender = gender.id }
-                )
+        var selectedGender by remember { mutableStateOf(genders[0].id) }
 
-                Text(
-                    text = gender.label, fontSize = 18.sp,
-                    modifier = Modifier.clickable(
-                        indication = null,              // ⛔ No ripple effect
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) {
-                        selectedGender = gender.id
-                    })
+        Text("Gender", fontSize = 20.sp, fontWeight = SemiBold)
+
+        FlowRow(
+            //maxItemsInEachRow = 2,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            genders.forEach { gender ->
+                if (gender.id == 4) return@forEach
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    RadioButton(
+                        selected = selectedGender == gender.id,
+                        onClick = {
+                            selectedGender = gender.id
+                            onGenderSelected(gender.id ?: 1)
+                        }
+                    )
+
+                    Text(
+                        text = gender.label, fontSize = 18.sp,
+                        modifier = Modifier.clickable(
+                            indication = null,              // ⛔ No ripple effect
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            selectedGender = gender.id
+                            onGenderSelected(gender.id ?: 1)
+                        })
+                }
             }
         }
     }
-}
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun CategorySelection(
-    origins: List<OriginEntity>
-) {
-    Text("Categories", fontSize = 20.sp, fontWeight = SemiBold)
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    FlowRow(
-        maxItemsInEachRow = 2,
-        modifier = Modifier.fillMaxWidth()
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    fun CategorySelection(
+        origins: List<OriginEntity>,
+        modifyOriginSelected: (Int, Boolean) -> Unit
     ) {
-        origins.forEach {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f) // Cada checkbox ocupará la mitad del ancho
-                    .padding(vertical = 4.dp) // Espacio entre filas
-            ) {
-                CheckboxDefault(text = it.name)
+        Text("Categories", fontSize = 20.sp, fontWeight = SemiBold)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FlowRow(
+            maxItemsInEachRow = 2,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            origins.forEach {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f) // Cada checkbox ocupará la mitad del ancho
+                        .padding(vertical = 4.dp) // Espacio entre filas
+                ) {
+                    CheckboxDefault(
+                        text = it.name,
+                        onCheckedChange = { isChecked ->
+                            modifyOriginSelected(it.id!!, isChecked)
+                        }
+                    )
+                }
             }
         }
     }
-}
 
-@Composable
-fun CheckboxDefault(
-    text: String
-) {
-    val checkedState = remember { mutableStateOf(true) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+    @Composable
+    fun CheckboxDefault(
+        text: String,
+        onCheckedChange: (Boolean) -> Unit
     ) {
-        Checkbox(
-            checked = checkedState.value,
-            onCheckedChange = { checkedState.value = it }
-        )
-        Text(
-            text = text,
-            fontSize = 18.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        val checkedState = remember { mutableStateOf(true) }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Checkbox(
+                checked = checkedState.value,
+                onCheckedChange = {
+                    checkedState.value = it
+                    onCheckedChange(it)
+                }
+            )
+            Text(
+                text = text,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
