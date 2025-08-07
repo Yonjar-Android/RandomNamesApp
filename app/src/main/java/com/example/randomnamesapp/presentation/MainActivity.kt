@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.randomnamesapp.data.database.entities.GenderEntity
 import com.example.randomnamesapp.data.database.entities.OriginEntity
@@ -57,11 +59,11 @@ import com.example.randomnamesapp.ui.theme.RandomNamesAppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
     private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         enableEdgeToEdge()
         setContent {
             RandomNamesAppTheme {
@@ -350,7 +352,7 @@ fun GenderSelection(
                 Text(
                     text = gender.label,
                     fontSize = 18.sp,
-                    color = if (selectedGender == gender.id) Color.White else Color.Black,
+                    color = if (selectedGender == gender.id) Color.White else MaterialTheme.colorScheme.onBackground,
                     fontWeight = if (selectedGender == gender.id) FontWeight.SemiBold else FontWeight.Normal,
                     modifier = Modifier.clickable(
                         indication = null,              // ⛔ No ripple effect

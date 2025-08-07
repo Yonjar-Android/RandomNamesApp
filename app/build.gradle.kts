@@ -73,5 +73,5 @@ dependencies {
     testImplementation(libs.koin.test.junit4)
 
     // Splash Screen
-    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.core.splashscreen.v120rc01)
 }
