@@ -57,6 +57,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    // Mockk
+    testImplementation(libs.mockk)
+
+    // Turbine
+    testImplementation(libs.turbine)
 
     // Flow row
     implementation(libs.accompanist.flowlayout)
