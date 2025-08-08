@@ -22,7 +22,6 @@ class RoomRepositoryImp(
             }
 
             val response = nameDao.getRandomName(genderIds, origins)
-            println(response)
             response.name
         } catch (e: Exception) {
             "Error: ${e.message}"

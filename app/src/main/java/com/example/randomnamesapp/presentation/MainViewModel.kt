@@ -35,7 +35,6 @@ class MainViewModel(
 
     fun getRandomName(genderId: Int, origins: List<Int>){
         viewModelScope.launch {
-            println(origins)
             val response = roomRepository.getRandomName(genderId, origins)
             if (response.contains("Error")){
                 _message.value = "No found names"
