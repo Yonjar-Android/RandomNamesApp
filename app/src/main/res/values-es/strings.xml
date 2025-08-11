@@ -69,6 +69,17 @@
     <string name="origin_Welsh">Galés</string>
     <string name="origin_Yoruba">Yoruba</string>
     <string name="origin_Zulu">Zulú</string>
+    <string name="origin_Mythology">Mitología</string>
+    <string name="origin_Pop">Cultura Pop</string>
+    <string name="origin_History">Historia</string>
+    <string name="origin_Carolingian_Cycle">Ciclo carolingio</string>
+    <string name="origin_Astronomy">Astronomía</string>
+    <string name="origin_Ancient">Antiguo</string>
+    <string name="origin_Esperanto">Esperanto</string>
+    <string name="origin_Literature">Literatura</string>
+    <string name="origin_Fijian">Fiyiano</string>
+    <string name="origin_Arthurian">Artúrico</string>
+    <string name="origin_Biblical">Bíblico</string>
     <string name="randomStr">Nombre Aleatorio</string>
     <string name="maleStr">Masculino</string>
     <string name="femaleStr">Femenino</string>

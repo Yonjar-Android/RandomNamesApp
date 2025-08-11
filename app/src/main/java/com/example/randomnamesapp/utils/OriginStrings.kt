@@ -70,7 +70,18 @@ object OriginStrings {
         "Vietnamese" to R.string.origin_Vietnamese,
         "Welsh" to R.string.origin_Welsh,
         "Yoruba" to R.string.origin_Yoruba,
-        "Zulu" to R.string.origin_Zulu
+        "Zulu" to R.string.origin_Zulu,
+        "Mythology" to R.string.origin_Mythology,
+        "Pop" to R.string.origin_Pop,
+        "History" to R.string.origin_History,
+        "Carolingian Cycle" to R.string.origin_Carolingian_Cycle,
+        "Astronomy" to R.string.origin_Astronomy,
+        "Ancient" to R.string.origin_Ancient,
+        "Esperanto" to R.string.origin_Esperanto,
+        "Literature" to R.string.origin_Literature,
+        "Fijian" to R.string.origin_Fijian,
+        "Arthurian" to R.string.origin_Arthurian,
+        "Biblical" to R.string.origin_Biblical
     )
 
     val mapGenders = mapOf(
