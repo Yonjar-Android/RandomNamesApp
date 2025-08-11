@@ -1,5 +1,6 @@
 package com.example.randomnamesapp.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,9 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.randomnamesapp.R
 import com.example.randomnamesapp.data.database.entities.GenderEntity
 import com.example.randomnamesapp.data.database.entities.OriginEntity
 import com.example.randomnamesapp.ui.theme.RandomNamesAppTheme
+import com.example.randomnamesapp.utils.OriginStrings
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -125,7 +129,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             ) {
                                 Text(
-                                    "Generate Name", fontSize = 24.sp,
+                                    stringResource(R.string.generateStr), fontSize = 24.sp,
                                     modifier = Modifier.padding(8.dp),
                                     color = Color.White
                                 )
@@ -144,11 +148,13 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        Text("Name Generator", fontSize = 28.sp, fontWeight = SemiBold)
+                        Text(stringResource(R.string.nameGeneratorStr), fontSize = 28.sp, fontWeight = SemiBold)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(randomName, fontSize = 24.sp, fontWeight = SemiBold)
+                        Text(
+                            if (randomName != "Random Name") randomName else stringResource(R.string.randomStr)
+                            , fontSize = 24.sp, fontWeight = SemiBold)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -174,6 +180,7 @@ class MainActivity : ComponentActivity() {
                                 CategorySelection( // Checkbox for category selection
                                     origins = origins,
                                     originsSelected = originsSelected,
+                                    context = this@MainActivity,
                                     modifyOriginSelected = {
                                             id, isChecked ->
                                         if (isChecked) {
@@ -206,9 +213,10 @@ class MainActivity : ComponentActivity() {
         origins: List<OriginEntity>,
         originsSelected: List<Int>,
         modifyAllOriginsSelected: (Boolean) -> Unit,
-        modifyOriginSelected: (id: Int,Boolean) -> Unit
+        modifyOriginSelected: (id: Int,Boolean) -> Unit,
+        context: Context
     ) {
-        Text("Categories or Origins", fontSize = 20.sp, fontWeight = SemiBold)
+        Text(stringResource(R.string.categoriesOriginsStr), fontSize = 20.sp, fontWeight = SemiBold)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -234,7 +242,7 @@ class MainActivity : ComponentActivity() {
                         .padding(vertical = 4.dp) // Espacio entre filas
                 ) {
                     CheckboxDefault(
-                        text = it.name,
+                        text = it.name ,
                         checked = it.id in originsSelected,
                         onCheckedChange = { isChecked ->
                             modifyOriginSelected(it.id!!, isChecked)
@@ -251,7 +259,7 @@ class MainActivity : ComponentActivity() {
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit
     ) {
-
+        val value = originName(text)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -263,7 +271,7 @@ class MainActivity : ComponentActivity() {
                 }
             )
             Text(
-                text = text,
+                text = if (value == 0) text else stringResource(id = value),
                 fontSize = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -294,7 +302,7 @@ fun ButtonsSelector(
             )
         ) {
             Text(
-                "Select All", color = Color.Black,
+                stringResource(R.string.selectAllStr), color = Color.Black,
                 fontWeight = FontWeight.Bold, fontSize = 16.sp
             )
         }
@@ -310,7 +318,7 @@ fun ButtonsSelector(
             )
         ) {
             Text(
-                "Unselect All", color = Color.Black,
+                stringResource(R.string.unselectAllStr), color = Color.Black,
                 fontWeight = FontWeight.Bold, fontSize = 16.sp
             )
         }
@@ -324,7 +332,7 @@ fun GenderSelection(
 ) {
     var selectedGender by remember { mutableStateOf(genders[0].id) }
 
-    Text("Gender", fontSize = 20.sp, fontWeight = SemiBold)
+    Text(stringResource(R.string.genderStr), fontSize = 20.sp, fontWeight = SemiBold)
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -335,6 +343,9 @@ fun GenderSelection(
     ) {
         genders.forEach { gender ->
             if (gender.id == 4) return@forEach
+
+            val value = originGender(gender.label)
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -350,7 +361,7 @@ fun GenderSelection(
 
             ) {
                 Text(
-                    text = gender.label,
+                    text = if (value == 0) gender.label else stringResource(id = value),
                     fontSize = 18.sp,
                     color = if (selectedGender == gender.id) Color.White else MaterialTheme.colorScheme.onBackground,
                     fontWeight = if (selectedGender == gender.id) FontWeight.SemiBold else FontWeight.Normal,
@@ -366,6 +377,16 @@ fun GenderSelection(
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
+}
+
+fun originName(originName: String): Int {
+    val resId = OriginStrings.map[originName] ?: 0
+    return resId
+}
+
+fun originGender(genderName: String): Int {
+    val resId = OriginStrings.mapGenders[genderName] ?: 0
+    return resId
 }
 
 

@@ -52,7 +52,7 @@ id,name
 51,Polish
 52,Portuguese
 53,Romanian
-54,Russian
+54,Russian//
 55,Scottish
 56,Serbian
 57,Slovak
@@ -67,8 +67,8 @@ id,name
 66,Vietnamese
 67,Welsh
 68,Yoruba
-69,Zulu
-70,Mythology
+69,Zulu//
+70,Mythology//
 71,Celtic
 72,Egyptian
 73,Near Eastern
@@ -78,7 +78,7 @@ id,name
 77,Anglo-Saxon
 78,Germanic
 79,Arthurian
-80,Biblical
+80,Biblical//
 81,Hinduism
 82,History
 83,Literature
