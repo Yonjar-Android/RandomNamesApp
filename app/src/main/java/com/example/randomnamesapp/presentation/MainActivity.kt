@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -136,7 +136,7 @@ class MainActivity : ComponentActivity() {
                                                 context = this@MainActivity
                                             )
                                         },
-                                        modifier = Modifier.padding(8.dp),
+                                        modifier = Modifier.padding(8.dp).testTag("GenerateButton"),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0XFF0d80f2)
                                         )
@@ -153,8 +153,7 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(innerPadding)
-                                    .verticalScroll(rememberScrollState()),
+                                    .padding(innerPadding),
                                 horizontalAlignment = Alignment.CenterHorizontally,
 
                                 ) {
@@ -195,7 +194,7 @@ class MainActivity : ComponentActivity() {
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    if (origins.isNotEmpty()) {
+                                    if(origins.isNotEmpty()) {
                                         CategorySelection( // Checkbox for category selection
                                             origins = origins,
                                             originsSelected = originsSelected,
@@ -254,7 +253,7 @@ class MainActivity : ComponentActivity() {
                                                 context = this@MainActivity
                                             )
                                         },
-                                        modifier = Modifier.padding(8.dp),
+                                        modifier = Modifier.padding(8.dp).testTag("GenerateButton"),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0XFF0d80f2)
                                         )
@@ -271,8 +270,7 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(innerPadding)
-                                    .verticalScroll(rememberScrollState()),
+                                    .padding(innerPadding),
                                 horizontalAlignment = Alignment.CenterHorizontally,
 
                                 ) {
@@ -372,7 +370,7 @@ class MainActivity : ComponentActivity() {
                                                 context = this@MainActivity
                                             )
                                         },
-                                        modifier = Modifier.padding(8.dp),
+                                        modifier = Modifier.padding(8.dp).testTag("GenerateButton"),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0XFF0d80f2)
                                         )
@@ -465,8 +463,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-
-
             }
         }
     }
@@ -506,6 +502,7 @@ class MainActivity : ComponentActivity() {
                         .padding(vertical = 4.dp) // Espacio entre filas
                 ) {
                     CheckboxDefault(
+                        modifier = Modifier.testTag("Origin${it.id}"),
                         text = it.name,
                         checked = it.id in originsSelected,
                         onCheckedChange = { isChecked ->
@@ -519,6 +516,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun CheckboxDefault(
+        modifier: Modifier = Modifier,
         text: String,
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit
@@ -529,6 +527,7 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Checkbox(
+                modifier = modifier,
                 checked = checked,
                 onCheckedChange = {
                     onCheckedChange(it)
@@ -629,7 +628,8 @@ fun GenderSelection(
                     fontSize = 18.sp,
                     color = if (selectedGender == gender.id) Color.White else MaterialTheme.colorScheme.onBackground,
                     fontWeight = if (selectedGender == gender.id) FontWeight.SemiBold else FontWeight.Normal,
-                    modifier = Modifier.clickable(
+                    modifier = Modifier.testTag("Gender${gender.id}")
+                        .clickable(
                         indication = null,              // ⛔ No ripple effect
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
