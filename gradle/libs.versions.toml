@@ -1,5 +1,6 @@
 [versions]
 accompanistFlowlayout = "0.36.0"
+adaptive = "1.1.0"
 agp = "8.12.0"
 coreSplashscreenVersion = "1.2.0-rc01"
 koinAndroid = "4.1.0"
@@ -21,6 +22,7 @@ turbine = "1.2.1"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
+androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen-v120rc01 = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreenVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }

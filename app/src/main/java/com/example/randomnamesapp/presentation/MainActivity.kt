@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.example.randomnamesapp.R
 import com.example.randomnamesapp.data.database.entities.GenderEntity
 import com.example.randomnamesapp.data.database.entities.OriginEntity
@@ -98,114 +101,372 @@ class MainActivity : ComponentActivity() {
 
                 val selectCatMsg = stringResource(R.string.selectCatStr)
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .windowInsetsPadding(
-                                    WindowInsets.systemBars
-                                )
-                        )
-                        {
-                            Button(
-                                shape = ShapeDefaults.Medium,
-                                onClick = {
-                                    if (originsSelected.isEmpty()) {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            selectCatMsg,
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        return@Button
-                                    }
+                val windowsSizeClass =
+                    currentWindowAdaptiveInfo().windowSizeClass.windowWidthSizeClass
 
-                                    viewModel.getRandomName(selectedGender, originsSelected,
-                                        context = this@MainActivity)
-                                },
-                                modifier = Modifier.padding(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0XFF0d80f2)
+                when (windowsSizeClass) {
+                    WindowWidthSizeClass.COMPACT -> {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .windowInsetsPadding(
+                                            WindowInsets.systemBars
+                                        )
                                 )
-                            ) {
+                                {
+                                    Button(
+                                        shape = ShapeDefaults.Medium,
+                                        onClick = {
+                                            if (originsSelected.isEmpty()) {
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    selectCatMsg,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                return@Button
+                                            }
+
+                                            viewModel.getRandomName(
+                                                selectedGender, originsSelected,
+                                                context = this@MainActivity
+                                            )
+                                        },
+                                        modifier = Modifier.padding(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0XFF0d80f2)
+                                        )
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.generateStr), fontSize = 24.sp,
+                                            modifier = Modifier.padding(8.dp),
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
+                        ) { innerPadding ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                                    .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+
+                                ) {
+
+                                Spacer(modifier = Modifier.height(24.dp))
+
                                 Text(
-                                    stringResource(R.string.generateStr), fontSize = 24.sp,
-                                    modifier = Modifier.padding(8.dp),
-                                    color = Color.White
+                                    stringResource(R.string.nameGeneratorStr),
+                                    fontSize = 28.sp,
+                                    fontWeight = SemiBold
                                 )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    if (randomName != "Random Name") randomName else stringResource(
+                                        R.string.randomStr
+                                    ), fontSize = 24.sp, fontWeight = SemiBold
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Radio Buttons for gender selection
+                                if (genders.isNotEmpty()) {
+                                    GenderSelection(
+                                        genders = genders,
+                                        onGenderSelected = {
+                                            selectedGender = it
+                                        })
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .verticalScroll(rememberScrollState()),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    if (origins.isNotEmpty()) {
+                                        CategorySelection( // Checkbox for category selection
+                                            origins = origins,
+                                            originsSelected = originsSelected,
+                                            context = this@MainActivity,
+                                            modifyOriginSelected = { id, isChecked ->
+                                                if (isChecked) {
+                                                    originsSelected.add(id)
+                                                } else {
+                                                    originsSelected.remove(id)
+                                                }
+                                            },
+                                            modifyAllOriginsSelected = { noneSelected ->
+                                                if (noneSelected) {
+                                                    originsSelected.clear()
+                                                    origins.forEach {
+                                                        originsSelected.add(it.id!!)
+                                                    }
+                                                } else {
+                                                    originsSelected.clear()
+                                                }
+                                            })
+                                    }
+                                }
                             }
                         }
                     }
-                ) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally,
 
-                        ) {
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Text(stringResource(R.string.nameGeneratorStr), fontSize = 28.sp, fontWeight = SemiBold)
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            if (randomName != "Random Name") randomName else stringResource(R.string.randomStr)
-                            , fontSize = 24.sp, fontWeight = SemiBold)
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Radio Buttons for gender selection
-                        if (genders.isNotEmpty()){
-                            GenderSelection(
-                                genders = genders,
-                                onGenderSelected = {
-                                    selectedGender = it
-                                })
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            if (origins.isNotEmpty()) {
-                                CategorySelection( // Checkbox for category selection
-                                    origins = origins,
-                                    originsSelected = originsSelected,
-                                    context = this@MainActivity,
-                                    modifyOriginSelected = {
-                                            id, isChecked ->
-                                        if (isChecked) {
-                                            originsSelected.add(id)
-                                        } else {
-                                            originsSelected.remove(id)
-                                        }
-                                    },
-                                    modifyAllOriginsSelected = { noneSelected ->
-                                        if (noneSelected) {
-                                            originsSelected.clear()
-                                            origins.forEach {
-                                                originsSelected.add(it.id!!)
+                    WindowWidthSizeClass.MEDIUM -> {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .windowInsetsPadding(
+                                            WindowInsets.systemBars
+                                        )
+                                )
+                                {
+                                    Button(
+                                        shape = ShapeDefaults.Medium,
+                                        onClick = {
+                                            if (originsSelected.isEmpty()) {
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    selectCatMsg,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                return@Button
                                             }
-                                        } else {
-                                            originsSelected.clear()
+
+                                            viewModel.getRandomName(
+                                                selectedGender, originsSelected,
+                                                context = this@MainActivity
+                                            )
+                                        },
+                                        modifier = Modifier.padding(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0XFF0d80f2)
+                                        )
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.generateStr), fontSize = 24.sp,
+                                            modifier = Modifier.padding(8.dp),
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
+                        ) { innerPadding ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                                    .verticalScroll(rememberScrollState()),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+
+                                ) {
+
+                                Spacer(modifier = Modifier.height(24.dp))
+
+                                Text(
+                                    stringResource(R.string.nameGeneratorStr),
+                                    fontSize = 28.sp,
+                                    fontWeight = SemiBold
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    if (randomName != "Random Name") randomName else stringResource(
+                                        R.string.randomStr
+                                    ), fontSize = 24.sp, fontWeight = SemiBold
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Radio Buttons for gender selection
+                                if (genders.isNotEmpty()) {
+                                    GenderSelection(
+                                        genders = genders,
+                                        onGenderSelected = {
+                                            selectedGender = it
+                                        })
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .verticalScroll(rememberScrollState()),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    if (origins.isNotEmpty()) {
+                                        CategorySelection( // Checkbox for category selection
+                                            origins = origins,
+                                            originsSelected = originsSelected,
+                                            context = this@MainActivity,
+                                            modifyOriginSelected = { id, isChecked ->
+                                                if (isChecked) {
+                                                    originsSelected.add(id)
+                                                } else {
+                                                    originsSelected.remove(id)
+                                                }
+                                            },
+                                            modifyAllOriginsSelected = { noneSelected ->
+                                                if (noneSelected) {
+                                                    originsSelected.clear()
+                                                    origins.forEach {
+                                                        originsSelected.add(it.id!!)
+                                                    }
+                                                } else {
+                                                    originsSelected.clear()
+                                                }
+                                            })
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    WindowWidthSizeClass.EXPANDED -> {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .windowInsetsPadding(
+                                            WindowInsets.systemBars
+                                        )
+                                )
+                                {
+                                    Button(
+                                        shape = ShapeDefaults.Medium,
+                                        onClick = {
+                                            if (originsSelected.isEmpty()) {
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    selectCatMsg,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                return@Button
+                                            }
+
+                                            viewModel.getRandomName(
+                                                selectedGender, originsSelected,
+                                                context = this@MainActivity
+                                            )
+                                        },
+                                        modifier = Modifier.padding(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0XFF0d80f2)
+                                        )
+                                    ) {
+                                        Text(
+                                            stringResource(R.string.generateStr), fontSize = 24.sp,
+                                            modifier = Modifier.padding(8.dp),
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+                            }
+                        ) { innerPadding ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+
+                                ) {
+
+                                Spacer(modifier = Modifier.height(24.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.fillMaxSize().weight(1f),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center) {
+                                        Text(
+                                            stringResource(R.string.nameGeneratorStr),
+                                            fontSize = 28.sp,
+                                            fontWeight = SemiBold
+                                        )
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+
+                                        Text(
+                                            if (randomName != "Random Name") randomName else stringResource(
+                                                R.string.randomStr
+                                            ), fontSize = 24.sp, fontWeight = SemiBold
+                                        )
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+
+                                        // Radio Buttons for gender selection
+                                        if (genders.isNotEmpty()) {
+                                            GenderSelection(
+                                                genders = genders,
+                                                onGenderSelected = {
+                                                    selectedGender = it
+                                                })
                                         }
-                                    })
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .weight(1f)
+                                            .verticalScroll(rememberScrollState()),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        if (origins.isNotEmpty()) {
+                                            CategorySelection( // Checkbox for category selection
+                                                origins = origins,
+                                                originsSelected = originsSelected,
+                                                context = this@MainActivity,
+                                                modifyOriginSelected = { id, isChecked ->
+                                                    if (isChecked) {
+                                                        originsSelected.add(id)
+                                                    } else {
+                                                        originsSelected.remove(id)
+                                                    }
+                                                },
+                                                modifyAllOriginsSelected = { noneSelected ->
+                                                    if (noneSelected) {
+                                                        originsSelected.clear()
+                                                        origins.forEach {
+                                                            originsSelected.add(it.id!!)
+                                                        }
+                                                    } else {
+                                                        originsSelected.clear()
+                                                    }
+                                                })
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+
             }
         }
     }
@@ -216,7 +477,7 @@ class MainActivity : ComponentActivity() {
         origins: List<OriginEntity>,
         originsSelected: List<Int>,
         modifyAllOriginsSelected: (Boolean) -> Unit,
-        modifyOriginSelected: (id: Int,Boolean) -> Unit,
+        modifyOriginSelected: (id: Int, Boolean) -> Unit,
         context: Context
     ) {
         Text(stringResource(R.string.categoriesOriginsStr), fontSize = 20.sp, fontWeight = SemiBold)
@@ -245,7 +506,7 @@ class MainActivity : ComponentActivity() {
                         .padding(vertical = 4.dp) // Espacio entre filas
                 ) {
                     CheckboxDefault(
-                        text = it.name ,
+                        text = it.name,
                         checked = it.id in originsSelected,
                         onCheckedChange = { isChecked ->
                             modifyOriginSelected(it.id!!, isChecked)

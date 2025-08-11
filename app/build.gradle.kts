@@ -81,4 +81,8 @@ dependencies {
 
     // Splash Screen
     implementation(libs.androidx.core.splashscreen.v120rc01)
+
+    //Adaptive Screen
+
+    implementation(libs.androidx.adaptive)
 }
