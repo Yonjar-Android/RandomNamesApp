@@ -1,5 +1,6 @@
 package com.example.randomnamesapp.presentation
 
+import android.content.Context
 import app.cash.turbine.turbineScope
 import com.example.randomnamesapp.MotherObject
 import com.example.randomnamesapp.data.repositories.RoomRepository
@@ -22,6 +23,9 @@ class MainViewModelTest {
 
     @MockK
     lateinit var roomRepository: RoomRepository
+
+    @MockK
+    lateinit var context: Context
 
     lateinit var mainViewModel: MainViewModel
 
@@ -59,7 +63,7 @@ class MainViewModelTest {
             assertEquals(turbineGenders.awaitItem().size, MotherObject.genders.size)
             assertEquals(turbineOrigins.awaitItem().size, MotherObject.origins.size)
 
-            mainViewModel.getRandomName(1, listOf(1, 2))
+            mainViewModel.getRandomName(1, listOf(1, 2), context)
 
             assertEquals(turbineName.awaitItem(),"Juan")
 

@@ -96,6 +96,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                val selectCatMsg = stringResource(R.string.selectCatStr)
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -115,13 +117,14 @@ class MainActivity : ComponentActivity() {
                                     if (originsSelected.isEmpty()) {
                                         Toast.makeText(
                                             this@MainActivity,
-                                            "Select at least one category",
+                                            selectCatMsg,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         return@Button
                                     }
 
-                                    viewModel.getRandomName(selectedGender, originsSelected)
+                                    viewModel.getRandomName(selectedGender, originsSelected,
+                                        context = this@MainActivity)
                                 },
                                 modifier = Modifier.padding(8.dp),
                                 colors = ButtonDefaults.buttonColors(

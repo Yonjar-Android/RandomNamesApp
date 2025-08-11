@@ -70,7 +70,7 @@
         <string name="origin_Zulu">Zulu</string>
     <string name="randomStr">Random Name</string>
     <string name="maleStr">Masculine</string>
-    <string name="femaleStr">femaleStr</string>
+    <string name="femaleStr">Feminine</string>
     <string name="generateStr">Generate Name</string>
     <string name="nameGeneratorStr">Name Generator</string>
     <string name="categoriesOriginsStr">Categories or Origins</string>
@@ -78,5 +78,7 @@
     <string name="unselectAllStr">Unselect All</string>
     <string name="genderStr">Gender</string>
     <string name="eitherStr">Either</string>
+    <string name="selectCatStr">Select at least one category</string>
+    <string name="noNamesStr">No found names</string>
 
 </resources>

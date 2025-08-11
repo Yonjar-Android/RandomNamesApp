@@ -79,4 +79,6 @@
     <string name="unselectAllStr">Deseleccionar Todo</string>
     <string name="genderStr">Género</string>
     <string name="eitherStr">Unisex</string>
+    <string name="selectCatStr">Selecciona una categoría</string>
+    <string name="noNamesStr">No se encontraron nombres</string>
 </resources>
